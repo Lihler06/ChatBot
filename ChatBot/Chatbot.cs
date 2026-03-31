@@ -1,156 +1,74 @@
 ﻿using System;
-using System.Media;
+using System.Collections.Generic;
 using System.Threading;
 
-namespace CyberSecurityChatbot
+namespace ChatBotNamespace
 {
-    class Chatbot
+    public class Chatbot
     {
-        public string UserName { get; set; }
+       
+        private Dictionary<string, string> responses = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public void Start()
+        public Chatbot()
         {
-            PlayGreeting();
-            ShowHeader();
-            GetUserName();
-            ShowHelp(); 
-            ChatLoop();
+            // cybersecurity topics
+            responses.Add("Phishing", "Be careful of emails asking for personal info. Always verify the sender.");
+            responses.Add("Password", "Use long and unique passwords. Avoid using the same password for multiple accounts.");
+            responses.Add("Safe Browsing", "Check URLs carefully and do not click suspicious links. Look for HTTPS and trusted sites.");
+            responses.Add("Social Engineering", "Never give personal info to strangers or over the phone/email unless verified.");
+            responses.Add("Purpose", "I am here to help you learn about cybersecurity and how to stay safe online.");
+            responses.Add("How are you?", "I'm a bot, but I am ready to help you stay safe online!");
         }
 
-        private void PlayGreeting()
+        public void ShowHelp()
         {
-            try
-            {
-                SoundPlayer player = new SoundPlayer("greeting.wav");
-                player.Play();
-            }
-            catch
-            {
-                Console.WriteLine("Audio file not found. Continuing...");
-            }
-        }
-
-        private void ShowHeader()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-
-            Console.WriteLine(@"
-   ____       _               ____                      _ _       
-  / ___|  ___| |__   ___ _ __/ ___|  ___  __ _ _ __ ___(_) |_ ___ 
-  \___ \ / __| '_ \ / _ \ '__\___ \ / _ \/ _` | '__/ __| | __/ __|
-   ___) | (__| | | |  __/ |   ___) |  __/ (_| | | | (__| | |_\__ \
-  |____/ \___|_| |_|\___|_|  |____/ \___|\__,_|_|  \___|_|\__|___/
-
-        CYBERSECURITY AWARENESS CHATBOT
-================================================================
-");
-
-            Console.ResetColor();
-        }
-
-        private void GetUserName()
-        {
-            Console.Write("Enter your name: ");
-            string? input = Console.ReadLine();
-
-            UserName = string.IsNullOrWhiteSpace(input)
-                ? "Guest"
-                : input.Trim();
-
             Console.ForegroundColor = ConsoleColor.Cyan;
-            TypeText($"\nWelcome, {UserName.ToUpper()}! I'm here to help you stay safe online.\n");
+            Console.WriteLine("\n--- Available Topics ---");
+            foreach (var key in responses.Keys)
+            {
+                Console.WriteLine($"- {key}");
+            }
+            Console.WriteLine("- Help (shows this list)\n");
             Console.ResetColor();
         }
 
-        // ✅ NEW METHOD (Help Menu)
-        private void ShowHelp()
+        public void Respond(string userInput)
         {
-            Console.ForegroundColor = ConsoleColor.Magenta;
-
-            Console.WriteLine("\nYou can ask me about:");
-            Console.WriteLine("- password");
-            Console.WriteLine("- phishing");
-            Console.WriteLine("- malware");
-            Console.WriteLine("- scams");
-            Console.WriteLine("- safe browsing");
-            Console.WriteLine("\nType 'help' to see this again.");
-
-            Console.ResetColor();
-        }
-
-        private void ChatLoop()
-        {
-            while (true)
+            if (string.IsNullOrWhiteSpace(userInput))
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("\nAsk me something (type 'exit' to quit): ");
+                Console.WriteLine("Please type something! Type 'Help' to see topics.");
                 Console.ResetColor();
+                return;
+            }
 
-                string? rawInput = Console.ReadLine();
-                string input = rawInput?.ToLower().Trim() ?? "";
+            if (userInput.Equals("Help", StringComparison.OrdinalIgnoreCase))
+            {
+                ShowHelp();
+                return;
+            }
 
-                if (string.IsNullOrEmpty(input))
-                {
-                    Console.WriteLine("Please enter something.");
-                    continue;
-                }
-
-                switch (input)
-                {
-                    case "how are you":
-                        TypeText($"I'm doing great, {UserName}!");
-                        break;
-
-                    case "purpose":
-                    case "what is your purpose":
-                        TypeText("I help educate people about cybersecurity and staying safe online.");
-                        break;
-
-                    case "password":
-                        TypeText("Use strong passwords with uppercase, lowercase, numbers, and symbols.");
-                        break;
-
-                    case "phishing":
-                        TypeText("Be careful of emails asking for personal info. Always verify the sender.");
-                        break;
-
-                    case "safe browsing":
-                        TypeText("Always check for HTTPS and avoid suspicious websites.");
-                        break;
-
-                    case "malware":
-                        TypeText("Malware is harmful software. Avoid downloading from unknown sources.");
-                        break;
-
-                    case "scams":
-                        TypeText("Scammers try to trick you. Never share personal or banking details.");
-                        break;
-
-                    case "help":
-                        ShowHelp(); // 👈 Now reuses the method
-                        break;
-
-                    case "exit":
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        TypeText($"Goodbye, {UserName}! Stay safe online.");
-                        Console.ResetColor();
-                        return;
-
-                    default:
-                        Console.WriteLine("I didn't understand that. Try typing 'help'.");
-                        break;
-                }
+            if (responses.ContainsKey(userInput))
+            {
+                SimulateTyping(responses[userInput]);
+            }
+            else
+            {
+                SimulateTyping("I didn't quite understand that. Type 'Help' to see available topics.");
             }
         }
 
-        private void TypeText(string message)
+        // Optional: Typing effect for bot responses
+        private void SimulateTyping(string text)
         {
-            foreach (char c in message)
+            Console.ForegroundColor = ConsoleColor.Green;
+            foreach (char c in text)
             {
                 Console.Write(c);
-                Thread.Sleep(20);
+                Thread.Sleep(20); 
             }
             Console.WriteLine();
+            Console.ResetColor();
         }
     }
 }
